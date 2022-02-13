@@ -23,6 +23,14 @@
       message() {
         return "Blank {N}-Vue app";
       }
+    },
+    mounted() {
+      const theProblem = mypackage.PublicInterface.get();
+      console.log("Before bug:");
+      console.log("  theProblem seems good                     :", theProblem);
+      console.log("  theProblem.isOk is undefined but shouldn't:", theProblem.isOk);
+      console.log("And this is obviously giving an error:");
+      console.log("  theProblem.isOk()                         :", theProblem.isOk());
     }
   });
 </script>
