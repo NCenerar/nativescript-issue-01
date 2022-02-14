@@ -11,144 +11,173 @@ tns debug android
 
 # The bug
 
-When the code reach a method call on an android object `mypackage.PublicInterface.get().isOk()`, you will get a runtime error:
+The factory pattern does not work as expected.
 
-```
-The build result is located at: xxx/platforms/android/app/build/outputs/apk/debug/app-debug.apk
-Installing on device XXXX...
-Successfully installed on device with identifier 'XXXX'.
-Restarting application on device XXXX...
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(Frame)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(Page)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(ActionBar)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(label)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild(ActionBar(4), Label(5))
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild(Page(3), ActionBar(4))
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(gridlayout)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(label)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(formattedstring)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(span)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild(, Span(9))
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> CreateElement(span)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild( , Span(10))
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild(Label(7),  Blank {N}-Vue app)
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild(GridLayout(6), Label(7))
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild(Page(3), GridLayout(6))
-JS: {NSVue (Vue: 2.6.12 | NSVue: 2.9.0)} -> AppendChild(Frame(2), Page(3))
-JS: Before bug:
-JS:   theProblem seems good                     : mypackage.PublicClass$PrivateInnerClass@12abed3
-JS:   theProblem.isOk is undefined but shouldn't: undefined
-JS: And this is obviously giving an error:
-JS: [Vue warn]: Error in mounted hook: "TypeError: theProblem.isOk is not a function"
-JS: 
-JS: found in
-JS: 
-JS: ---> <Home> at app/components/Home.vue
-JS:        <Frame>
-JS:          <Root>
-System.err: An uncaught Exception occurred on "main" thread.
-System.err: Unable to start activity ComponentInfo{org.nativescript.issuenativeandroid/com.tns.NativeScriptActivity}: com.tns.NativeScriptException: Calling js method onCreate failed
-System.err: TypeError: theProblem.isOk is not a function
-System.err: 
-System.err: StackTrace:
-System.err: java.lang.RuntimeException: Unable to start activity ComponentInfo{org.nativescript.issuenativeandroid/com.tns.NativeScriptActivity}: com.tns.NativeScriptException: Calling js method onCreate failed
-System.err: TypeError: theProblem.isOk is not a function
-System.err:     at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3271)
-System.err:     at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3410)
-System.err:     at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:83)
-System.err:     at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
-System.err:     at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
-System.err:     at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2017)
-System.err:     at android.os.Handler.dispatchMessage(Handler.java:107)
-System.err:     at android.os.Looper.loop(Looper.java:214)
-System.err:     at android.app.ActivityThread.main(ActivityThread.java:7397)
-System.err:     at java.lang.reflect.Method.invoke(Native Method)
-System.err:     at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:492)
-System.err:     at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:935)
-System.err: Caused by: com.tns.NativeScriptException: Calling js method onCreate failed
-System.err: TypeError: theProblem.isOk is not a function
-System.err:     at com.tns.Runtime.callJSMethodNative(Native Method)
-System.err:     at com.tns.Runtime.dispatchCallJSMethodNative(Runtime.java:1302)
-System.err:     at com.tns.Runtime.callJSMethodImpl(Runtime.java:1188)
-System.err:     at com.tns.Runtime.callJSMethod(Runtime.java:1175)
-System.err:     at com.tns.Runtime.callJSMethod(Runtime.java:1153)
-System.err:     at com.tns.Runtime.callJSMethod(Runtime.java:1149)
-System.err:     at com.tns.NativeScriptActivity.onCreate(NativeScriptActivity.java:29)
-System.err:     at android.app.Activity.performCreate(Activity.java:7802)
-System.err:     at android.app.Activity.performCreate(Activity.java:7791)
-System.err:     at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1300)
-System.err:     at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3246)
-System.err:     ... 11 more
-Unable to apply changes on device: XXXX. Error is: The application org.nativescript.issuenativeandroid does not appear to be running on XXXX or is not built with debugging enabled. Try starting the application manually..
-```
-
-# Long setup
-
-Initialize the project:
-```
-tns create issue-native-android --vue --ts
-cd issue-native-android
-```
-
-Create a java interface `./App_Resources/Android/src/main/java/mypackage/PublicInterface.java`:
-```
+`App_Resources/Android/src/main/java/mypackage/PublicClass.java`
+```java
 package mypackage;
 
-public interface PublicInterface {
-    public static PublicInterface get() {
-        return PublicClass.get();
+import android.util.Log;
+
+class PackageProtectedClass implements Runnable {
+    @Override
+    public void run() {
+        Log.d("JS", String.format("Run:  I am %s %s", this.getClass(), this));
     }
-    public boolean isOk();
+}
+
+public class PublicClass {
+    public PackageProtectedClass getIt() {
+        return new PackageProtectedClass();
+    }
 }
 ```
 
-Update the types `./types/references.d.ts`:
-```
+`./types/references.d.ts`
+```typescript
 /// <reference path="../node_modules/@nativescript/types/index.d.ts" />
 
 declare namespace mypackage {
-    export class PublicInterface {
-        public static get(): mypackage.PublicInterface;
-        public isOk(): boolean;
+    export class PackageProtectedClass extends java.lang.Object implements java.lang.Runnable {
+        public constructor(): PackageProtectedClass;
+        public run(): void;
+    }
+    export class PublicClass extends java.lang.Object {
+        public constructor(): PublicClass;
+        public getIt(): mypackage.PackageProtectedClass;
     }
 }
 ```
 
-Create a java class implementing the interface with a singleton pattern based on a private inner class `App_Resources/Android/src/main/java/mypackage/PublicClass.java`:
-```
-package mypackage;
+Script part of `./app/Components/Home.vue`
+```typescript
+  import Vue from "nativescript-vue";
 
-public final class PublicClass {
-    private static class PrivateInnerClass implements PublicInterface {
-        @Override
-        public boolean isOk() {
-            return true;
-        }
-    }
+  function logObject(name: string, obj: any, indent: number = 0) {
+      const prefix = ''.padStart(indent, ' ');
+      const proto = Object.getPrototypeOf(obj);
+      if (name) console.log(prefix, name, obj);
+      console.log(prefix, " >", Object.entries(obj));
+      console.log(prefix, " >", Object.getOwnPropertyNames(obj));
+      if (obj && proto && obj !== Object.prototype) {
+        logObject('', proto, indent + 2);
+      }
+  }
 
-    private static PrivateInnerClass singleton;
-    public static PrivateInnerClass get() {
-        if (PublicClass.singleton == null ) {
-            PublicClass.singleton = new PrivateInnerClass();
-        }
-        return PublicClass.singleton;
-    }
-}
-```
-
-Update the main Component and add a mounted function `./app/Components/Home.vue`:
-```
+  export default Vue.extend({
+    computed: {
+      message() {
+        return "Blank {N}-Vue app";
+      }
+    },
     mounted() {
-      const theProblem = mypackage.PublicInterface.get();
-      console.log("Before bug:");
-      console.log("  theProblem seems good                     :", theProblem);
-      console.log("  theProblem.isOk is undefined but shouldn't:", theProblem.isOk);
-      console.log("And this is obviously giving an error:");
-      console.log("  theProblem.isOk()                         :", theProblem.isOk());
+      logObject("mypackage", mypackage);
+      logObject("PublicClass", mypackage.PublicClass);
+      logObject("PackageProtectedClass", mypackage.PackageProtectedClass);
+      const theFactory = new mypackage.PublicClass();
+      const theProblem = theFactory.getIt();
+      logObject("theFactory", theFactory);
+      logObject("theProblem", theProblem);
+      console.log("theProblem.run :", theProblem.run);
+      const theClass = theProblem.getClass();
+      const theInterfaces = theClass.getInterfaces();
+      const theDeclaredMethods = theClass.getDeclaredMethods()
+      console.log("theProblem.getClass() :", theClass);
+      console.log("theClass.getInterfaces() :", theInterfaces);
+      for (let i=0; i<theInterfaces.length; i++) {
+        console.log(" > ", i, theInterfaces[i]);
+      }
+      console.log("theClass.getDeclaredMethods() :", theDeclaredMethods);
+      for (let i=0; i<theDeclaredMethods.length; i++) {
+        console.log(" > ", i, theDeclaredMethods[i]);
+      }
+      try {
+        theProblem.run();
+      } catch (e) {
+        console.error(e, (e as Error).stack);
+      }
     }
+  });
 ```
 
-Run on android:
+# The output:
+
+```log
+JS:  mypackage {}
+JS:   > [[PublicClass, function () { [native code] }], [PackageProtectedClass, function () { [native code] }]]
+JS:   > [PublicClass, PackageProtectedClass]
+JS:     > []
+JS:     > [constructor, __defineGetter__, __defineSetter__, hasOwnProperty, __lookupGetter__, __lookupSetter__, isPrototypeOf, propertyIsEnumerable, toString, valueOf, __proto__, toLocaleString]
+JS:  PublicClass function () { [native code] }
+JS:   > [[extend, function () { [native code] }], [null, function () { [native code] }], [class, class mypackage.PublicClass]]
+JS:   > [length, name, arguments, caller, prototype, extend, null, class, valueOf]
+JS:     > [[extend, function () { [native code] }], [null, function () { [native code] }], [class, class java.lang.Object]]
+JS:     > [length, name, arguments, caller, prototype, extend, null, class, valueOf]
+JS:       > []
+JS:       > [length, name, arguments, caller, constructor, apply, bind, call, toString]
+JS:         > []
+JS:         > [constructor, __defineGetter__, __defineSetter__, hasOwnProperty, __lookupGetter__, __lookupSetter__, isPrototypeOf, propertyIsEnumerable, toString, valueOf, __proto__, toLocaleString]
+JS:  PackageProtectedClass function () { [native code] }
+JS:   > [[extend, function () { [native code] }], [null, function () { [native code] }], [class, class mypackage.PackageProtectedClass]]
+JS:   > [length, name, arguments, caller, prototype, extend, null, class, valueOf]
+JS:     > [[extend, function () { [native code] }], [null, function () { [native code] }], [class, class java.lang.Object], [valueOf, function () { [native code] }]]
+JS:     > [length, name, arguments, caller, prototype, extend, null, class, valueOf]
+JS:       > []
+JS:       > [length, name, arguments, caller, constructor, apply, bind, call, toString]
+JS:         > []
+JS:         > [constructor, __defineGetter__, __defineSetter__, hasOwnProperty, __lookupGetter__, __lookupSetter__, isPrototypeOf, propertyIsEnumerable, toString, valueOf, __proto__, toLocaleString]
+JS:  theFactory mypackage.PublicClass@b67070e
+JS:   > []
+JS:   > []
+JS:     > [[<init>, function <init>() { [native code] }], [getIt, function getIt() { [native code] }]]
+JS:     > [<init>, getIt, constructor]
+JS:       > [[<init>, function <init>() { [native code] }], [clone, function clone() { [native code] }], [equals, function equals() { [native code] }], [finalize, function finalize() { [native code] }], [getClass, function getClass() { [native code] }], [hashCode, function hashCode() { [native code] }], [notify, function notify() { [native code] }], [notifyAll, function notifyAll() { [native code] }], [toString, function toString() { [native code] }], [wait, function wait() { [native code] }]]
+JS:       > [<init>, clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, constructor]
+JS:         > []
+JS:         > [constructor, __defineGetter__, __defineSetter__, hasOwnProperty, __lookupGetter__, __lookupSetter__, isPrototypeOf, propertyIsEnumerable, toString, valueOf, __proto__, toLocaleString]
+JS:  theProblem mypackage.PackageProtectedClass@1d8752f
+JS:   > [[constructor, function () { [native code] }]]
+JS:   > [constructor]
+JS:     > []
+JS:     > [constructor]
+JS:       > [[<init>, function <init>() { [native code] }], [clone, function clone() { [native code] }], [equals, function equals() { [native code] }], [finalize, function finalize() { [native code] }], [getClass, function getClass() { [native code] }], [hashCode, function hashCode() { [native code] }], [notify, function notify() { [native code] }], [notifyAll, function notifyAll() { [native code] }], [toString, function toString() { [native code] }], [wait, function wait() { [native code] }]]
+JS:       > [<init>, clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, constructor]
+JS:         > []
+JS:         > [constructor, __defineGetter__, __defineSetter__, hasOwnProperty, __lookupGetter__, __lookupSetter__, isPrototypeOf, propertyIsEnumerable, toString, valueOf, __proto__, toLocaleString]
+JS: theProblem.run : undefined
+JS: theProblem.getClass() : class mypackage.PackageProtectedClass
+JS: theClass.getInterfaces() : [Ljava.lang.Class;@e38673c
+JS:  >  0 interface java.lang.Runnable
+JS: theClass.getDeclaredMethods() : [Ljava.lang.reflect.Method;@1e06cc5
+JS:  >  0 public void mypackage.PackageProtectedClass.run()
+JS: TypeError: theProblem.run is not a function TypeError: theProblem.run is not a function
+JS:     at VueComponent.mounted (file: app/webpack:/issue-native-android/app/components/Home.vue?3a7c:60:17)
+JS:     at invokeWithErrorHandling (file: app/webpack:/issue-native-android/node_modules/nativescript-vue/dist/index.js:1862:0)
+JS:     at callHook$1 (file: app/webpack:/issue-native-android/node_modules/nativescript-vue/dist/index.js:5097:0)
+JS:     at Object.insert (file: app/webpack:/issue-native-android/node_modules/nativescript-vue/dist/index.js:4019:0)
+JS:     at invokeInsertHook (file: app/webpack:/issue-native-android/node_modules/nativescript-vue/dist/index.js:5680:0)
+JS:     at Vue.patch [as __patch__] (file: app/webpack:/issue-native-android/node_modules/nativescript-vue/dist/index.js:5899:0)
+JS:     at Vue._update (file: app/webpack:/issue-native-android/node_modules/nativescript-vue/dist/index.js:4823:0)
+JS:     at Vue.updateComponent (file: app/webpack:/issue-native-android/node_modules/nativescript-vue/dist/index.js:4944:0)
+JS:     at Watcher.get (file:///data/data/org.nativescript.issuen...
 ```
-tns debug android
+
+# Notable output
+The difference between the working object `theFactory` and the non working object `theProblem`:
 ```
+JS:  theFactory mypackage.PublicClass@b67070e
+JS:   > []
+JS:   > []
+JS:     > [[<init>, function <init>() { [native code] }], [getIt, function getIt() { [native code] }]]
+JS:     > [<init>, getIt, constructor]
+
+JS:  theProblem mypackage.PackageProtectedClass@1d8752f
+JS:   > [[constructor, function () { [native code] }]]
+JS:   > [constructor]
+JS:     > []
+JS:     > [constructor]
+```
+
+Each of them seems to have a correct reference but `theProblem` does not seems to be correctly binded.
+
+It is a very simple factory pattern and I wonder how NativeScript is supposed to handle object instance coming from a native librarie.

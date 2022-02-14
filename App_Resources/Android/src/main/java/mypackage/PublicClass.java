@@ -1,18 +1,16 @@
 package mypackage;
 
-public final class PublicClass {
-    private static class PrivateInnerClass implements PublicInterface {
-        @Override
-        public boolean isOk() {
-            return true;
-        }
-    }
+import android.util.Log;
 
-    private static PrivateInnerClass singleton;
-    public static PrivateInnerClass get() {
-        if (PublicClass.singleton == null ) {
-            PublicClass.singleton = new PrivateInnerClass();
-        }
-        return PublicClass.singleton;
+class PackageProtectedClass implements Runnable {
+    @Override
+    public void run() {
+        Log.d("JS", String.format("Run:  I am %s %s", this.getClass(), this));
+    }
+}
+
+public class PublicClass {
+    public PackageProtectedClass getIt() {
+        return new PackageProtectedClass();
     }
 }
